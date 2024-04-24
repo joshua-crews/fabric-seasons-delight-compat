@@ -5,6 +5,7 @@ import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseArtifact
 import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.Options
+import java.util.*
 
 buildscript {
     dependencies {
@@ -34,9 +35,14 @@ group = project["maven_group"]
 base.archivesName.set("${name.split("-").let{it.subList(0, it.size-1)}.joinToString("-")}-${project["delight_version"]}-compat")
 
 val environment: Map<String, String> = System.getenv()
-val releaseName = "${name.split("-").let{it.subList(0, it.size-2)}.joinToString(" ") { it.capitalize() }} Compat: ${name.split("-").let { it.subList(0, it.size-1) }.last().capitalize()} ${project["delight_version"]}"
+val releaseName = "${name.split("-").let{it.subList(0, it.size-2)}.joinToString(" ") { it.replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(
+        Locale.getDefault()
+    ) else it.toString()
+} }} Compat: ${name.split("-").let { it.subList(0, it.size-1) }.last()
+    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }} ${project["delight_version"]}"
 val releaseType = "RELEASE"
-val releaseFile = "${buildDir}/libs/${base.archivesName.get()}-${version}.jar"
+val releaseFile = "${project.layout.buildDirectory}/libs/${base.archivesName.get()}-${version}.jar"
 val cfGameVersion = project["seasons_version"].split("+")[1].let{ if(!project["minecraft_version"].contains("-") && project["minecraft_version"].startsWith(it)) project["minecraft_version"] else "$it-Snapshot"}
 
 fun getChangeLog(): String {
@@ -72,10 +78,34 @@ repositories {
     maven {
         name = "Curse Maven"
         url = uri("https://cursemaven.com")
+        content {
+            includeGroup("curse.maven")
+        }
     }
     maven {
         name = "Cafeteria"
         url = uri("https://maven.cafeteria.dev/releases")
+    }
+    maven {
+        name = "Greenhouse Maven"
+        url = uri("https://maven.greenhouseteam.dev/releases/")
+    }
+    maven {
+        name = "devOSReleases"
+        url = uri("https://mvn.devos.one/releases/")
+    }
+    maven {
+        url = uri("https://maven.jamieswhiteshirt.com/libs-release")
+        content {
+            includeGroup("com.jamieswhiteshirt")
+        }
+    }
+    maven {
+        name = "fabricAsm"
+        url = uri("https://jitpack.io")
+        content {
+            includeGroup("com.github.Chocohead")
+        }
     }
     mavenLocal()
 }
@@ -87,7 +117,19 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project["loader_version"]}")
 
     modImplementation("io.github.lucaargolo:fabric-seasons:${project["seasons_version"]}")
-    modImplementation("curse.maven:farmers-delight-fabric-${project["delight_id"]}:${project["delight_file"]}")
+
+    modImplementation("com.github.Chocohead:Fabric-ASM:${project["fabric_asm_version"]}") {
+        exclude(group = "net.fabricmc.fabric-api")
+    }
+
+    val portLibModules = project.findProperty("port_lib_modules")?.toString()?.split(",") ?: emptyList()
+    for (module in portLibModules) {
+        modImplementation("io.github.fabricators_of_create.Porting-Lib:$module:${project.findProperty("porting_lib_version")}")
+    }
+
+    modImplementation("vectorwing:FarmersDelight:${project["delight_version"]}") {
+        exclude(group = "net.fabricmc")
+    }
 
 }
 
@@ -147,7 +189,7 @@ curseforge {
     project(closureOf<CurseProject> {
         id = project["curseforge_id"]
         changelog = getChangeLog()
-        releaseType = this@Build_gradle.releaseType.toLowerCase()
+        releaseType = this@Build_gradle.releaseType.lowercase(Locale.getDefault())
         addGameVersion(cfGameVersion)
         addGameVersion("Fabric")
 
@@ -155,7 +197,7 @@ curseforge {
             displayName = releaseName
             relations(closureOf<CurseRelation> {
                 requiredDependency("fabric-seasons")
-                requiredDependency("farmers-delight-fabric")
+                requiredDependency("farmers-delight-refabricated")
             })
         })
 
@@ -179,7 +221,7 @@ modrinth {
 
     versionNumber.set(version as String)
     versionName.set(releaseName)
-    versionType.set(releaseType.toLowerCase())
+    versionType.set(releaseType.lowercase(Locale.getDefault()))
 
     uploadFile.set(tasks.remapJar.get())
 
@@ -188,7 +230,7 @@ modrinth {
 
     dependencies {
         required.project("fabric-seasons")
-        required.project("farmers-delight-fabric")
+        required.project("farmers-delight-refabricated")
     }
 }
 tasks.modrinth.configure {

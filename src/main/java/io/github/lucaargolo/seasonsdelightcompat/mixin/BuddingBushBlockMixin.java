@@ -1,6 +1,6 @@
 package io.github.lucaargolo.seasonsdelightcompat.mixin;
 
-import com.nhoryzon.mc.farmersdelight.block.BuddingBushBlock;
+import vectorwing.farmersdelight.common.block.BuddingBushBlock;
 import io.github.lucaargolo.seasons.utils.FertilizableUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

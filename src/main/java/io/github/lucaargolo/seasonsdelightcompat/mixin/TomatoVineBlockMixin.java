@@ -1,6 +1,6 @@
 package io.github.lucaargolo.seasonsdelightcompat.mixin;
 
-import com.nhoryzon.mc.farmersdelight.block.TomatoVineBlock;
+import vectorwing.farmersdelight.common.block.TomatoVineBlock;
 import io.github.lucaargolo.seasons.utils.FertilizableUtil;
 import io.github.lucaargolo.seasons.utils.SeasonalFertilizable;
 import net.minecraft.block.*;

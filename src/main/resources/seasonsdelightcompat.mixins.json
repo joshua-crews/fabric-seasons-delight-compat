@@ -7,7 +7,7 @@
     "BuddingBushBlockMixin",
     "BuddingTomatoBlockMixin",
     "MushroomColonyBlockMixin",
-    "RiceCropBlockMixin",
+    "RiceBlockMixin",
     "TomatoVineBlockMixin"
   ],
   "injectors": {

@@ -1,6 +1,6 @@
 package io.github.lucaargolo.seasonsdelightcompat.mixin;
 
-import com.nhoryzon.mc.farmersdelight.block.MushroomColonyBlock;
+import vectorwing.farmersdelight.common.block.MushroomColonyBlock;
 import io.github.lucaargolo.seasons.utils.FertilizableUtil;
 import io.github.lucaargolo.seasons.utils.SeasonalFertilizable;
 import net.minecraft.block.BlockState;
